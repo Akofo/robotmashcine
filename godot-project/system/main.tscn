@@ -1,0 +1,157 @@
+[gd_scene format=3 uid="uid://1rs2k3xrq2f2"]
+
+[ext_resource type="Texture2D" uid="uid://dh55vx8mutj0k" path="res://textures/prototype_grey.png" id="1_7am6p"]
+[ext_resource type="Script" uid="uid://c50ew7fq7as4v" path="res://system/simulation_manager.gd" id="1_tuma4"]
+[ext_resource type="PackedScene" uid="uid://i3jtb228g4p1" path="res://robots/robot.tscn" id="4_7rmty"]
+[ext_resource type="Script" uid="uid://cr5xd7drbfnew" path="res://system/ring_area.gd" id="4_goxoi"]
+[ext_resource type="Script" uid="uid://x6xqirqhn2qu" path="res://robots/robot_controller.gd" id="5_tuma4"]
+[ext_resource type="Script" uid="uid://dph5bymoc6lx0" path="res://components/rl_agent.gd" id="6_kmnl7"]
+[ext_resource type="Script" uid="uid://miwarb81d837" path="res://addons/godot_rl_agents/sync.gd" id="7_0hq6h"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cyina"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_7am6p"]
+sky_material = SubResource("ProceduralSkyMaterial_cyina")
+
+[sub_resource type="Environment" id="Environment_gisfo"]
+background_mode = 2
+sky = SubResource("Sky_7am6p")
+glow_enabled = true
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_7rmty"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_goxoi"]
+albedo_texture = ExtResource("1_7am6p")
+uv1_triplanar = true
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_xrivr"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_xrivr"]
+height = 20.0
+radius = 7.95
+
+[sub_resource type="LabelSettings" id="LabelSettings_xrivr"]
+font_size = 90
+outline_size = 20
+
+[node name="Main" type="Node3D" unique_id=2034509664]
+
+[node name="SimulationManager" type="Node" parent="." unique_id=1753323360 node_paths=PackedStringArray("agents", "agent_robot", "robot_holder", "ring_shape", "round_timer", "sync")]
+script = ExtResource("1_tuma4")
+agents = [NodePath("../BlueAgent"), NodePath("../RedAgent")]
+agent_robot = NodePath("../Robots/BlueRobot")
+robot_holder = NodePath("../Robots")
+ring_shape = NodePath("../RingArea/CollisionShape3D")
+round_timer = NodePath("../RoundTimer")
+sync = NodePath("../Sync")
+metadata/_custom_type_script = "uid://c50ew7fq7as4v"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1673052068]
+environment = SubResource("Environment_gisfo")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1824000974]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="World" type="StaticBody3D" parent="." unique_id=1883173728]
+physics_material_override = SubResource("PhysicsMaterial_7rmty")
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="World" unique_id=1115049733]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.499, 0)
+radius = 7.95
+height = 1.0
+sides = 50
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="World/CSGCylinder3D" unique_id=2039781943]
+operation = 2
+radius = 7.7
+height = 1.0
+sides = 50
+
+[node name="CSGBox3D" type="CSGBox3D" parent="World" unique_id=1991514157]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+size = Vector3(25, 1, 25)
+material = SubResource("StandardMaterial3D_goxoi")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World" unique_id=1387213669]
+shape = SubResource("WorldBoundaryShape3D_xrivr")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1823601430]
+transform = Transform3D(-0.7071068, 0.61237246, -0.35355335, 0, 0.49999997, 0.86602545, 0.7071068, 0.61237246, -0.35355335, -5, 8, -5)
+
+[node name="Robots" type="Node" parent="." unique_id=1247978935]
+
+[node name="BlueRobot" parent="Robots" unique_id=1934955016 instance=ExtResource("4_7rmty")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 1.6909351, 0, 3.521679)
+color = Color(0.23092607, 0.65802974, 0.97532994, 1)
+
+[node name="RedRobot" parent="Robots" unique_id=1882539363 instance=ExtResource("4_7rmty")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, -4.2180185)
+color = Color(0.9612724, 0.38545647, 0.37467715, 1)
+
+[node name="RingArea" type="Area3D" parent="." unique_id=672496366 node_paths=PackedStringArray("robots", "win_text")]
+monitorable = false
+script = ExtResource("4_goxoi")
+robots = [NodePath("../Robots/BlueRobot"), NodePath("../Robots/RedRobot")]
+win_text = NodePath("../CanvasLayer/WinText")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RingArea" unique_id=1038656629]
+shape = SubResource("CylinderShape3D_xrivr")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1204695317]
+
+[node name="WinText" type="Label" parent="CanvasLayer" unique_id=264421239]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Robot wins!"
+label_settings = SubResource("LabelSettings_xrivr")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BlueController" type="Node" parent="." unique_id=1308884516 node_paths=PackedStringArray("robot")]
+script = ExtResource("5_tuma4")
+input_mode = 1
+robot = NodePath("../Robots/BlueRobot")
+engine_power = 100.0
+metadata/_custom_type_script = "uid://x6xqirqhn2qu"
+
+[node name="RedController" type="Node" parent="." unique_id=1510759221 node_paths=PackedStringArray("robot")]
+script = ExtResource("5_tuma4")
+input_mode = 1
+input_left_fwd = "p1_left_fwd"
+input_left_bwd = "p1_left_bwd"
+input_right_fwd = "p1_right_fwd"
+input_right_bwd = "p1_right_bwd"
+robot = NodePath("../Robots/RedRobot")
+engine_power = 100.0
+metadata/_custom_type_script = "uid://x6xqirqhn2qu"
+
+[node name="BlueAgent" type="Node3D" parent="." unique_id=386915892 node_paths=PackedStringArray("controller")]
+script = ExtResource("6_kmnl7")
+controller = NodePath("../BlueController")
+metadata/_custom_type_script = "uid://dph5bymoc6lx0"
+
+[node name="RedAgent" type="Node3D" parent="." unique_id=497513183 node_paths=PackedStringArray("controller")]
+script = ExtResource("6_kmnl7")
+controller = NodePath("../RedController")
+metadata/_custom_type_script = "uid://dph5bymoc6lx0"
+
+[node name="Sync" type="Node" parent="." unique_id=1368255483]
+script = ExtResource("7_0hq6h")
+speed_up = 40.0
+onnx_model_path = "..\\stage1.onnx"
+metadata/_custom_type_script = "uid://miwarb81d837"
+
+[node name="RoundTimer" type="Timer" parent="." unique_id=1436952715]
+wait_time = 240.0
+one_shot = true
+
+[connection signal="body_exited" from="RingArea" to="RingArea" method="_on_body_exited"]
+[connection signal="round_over" from="RingArea" to="SimulationManager" method="_on_ring_area_round_over"]
+[connection signal="timeout" from="RoundTimer" to="SimulationManager" method="_on_round_timer_timeout"]
